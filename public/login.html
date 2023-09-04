@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+    <link rel="stylesheet" type="text/css" href="tologin.css">
+</head>
+<body>
+<h1>Login</h1>
+<form id="login-form">
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required><br>
+
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required><br>
+
+    <button type="submit">Login</button>
+</form>
+
+<p id="error-message" style="color: red;"></p>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('login-form');
+        const errorMessage = document.getElementById('error-message');
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const email = form.querySelector('#email').value;
+            const password = form.querySelector('#password').value;
+
+            // Uwierzytelnianie za pomocą Firebase Authentication
+            firebase.auth().signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Zalogowano pomyślnie
+                    const user = userCredential.user;
+                    // Tutaj możesz przekierować użytkownika na inną stronę lub wykonać inne działania
+                    console.log('Zalogowano:', user);
+                })
+                .catch((error) => {
+                    // Obsługa błędów logowania
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+                    errorMessage.textContent = errorMessage;
+                    console.error('Błąd logowania:', errorMessage);
+                });
+        });
+    });
+</script>
+</body>
+</html>

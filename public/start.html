@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login or Sign Up</title>
+    <link rel="stylesheet" type="text/css" href="tostart.css">
+</head>
+<body>
+<div class="container">
+    <h1>Login or Sign Up</h1>
+
+    <!-- Przyciski do wyboru -->
+    <button id="login-button">Login</button>
+    <button id="signup-button">Sign Up</button>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const loginButton = document.getElementById('login-button');
+        const signupButton = document.getElementById('signup-button');
+
+        // Przekierowanie do odpowiednich stron po kliknięciu przycisku
+        loginButton.addEventListener('click', function () {
+            window.location.href = 'login.html'; // Przekierowanie do strony logowania
+        });
+
+        signupButton.addEventListener('click', function () {
+            window.location.href = 'index.html'; // Przekierowanie do strony tworzenia użytkownika
+        });
+    });
+</script>
+</body>
+</html>
