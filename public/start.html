@@ -1,32 +1,37 @@
 <!DOCTYPE html>
-<html>
+<html lang ="en">
 <head>
-    <title>Login or Sign Up</title>
-    <link rel="stylesheet" type="text/css" href="tostart.css">
+    <title>Contact Form</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
-<div class="container">
-    <h1>Login or Sign Up</h1>
+<h1>Contact Form</h1>
+<form id="contact-form" action="/create" method="POST">
+    <label for="FirstName">First Name:</label>
+    <input type="text" id="FirstName" name="FirstName" required><br>
 
-    <!-- Przyciski do wyboru -->
-    <button id="login-button">Login</button>
-    <button id="signup-button">Sign Up</button>
-</div>
+    <label for="LastName">Last Name:</label>
+    <input type="text" id="LastName" name="LastName" required><br>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const loginButton = document.getElementById('login-button');
-        const signupButton = document.getElementById('signup-button');
+    <label for="PhoneNumber">Phone Number:</label>
+    <input type="tel" id="PhoneNumber" name="PhoneNumber" required><br>
 
-        // Przekierowanie do odpowiednich stron po kliknięciu przycisku
-        loginButton.addEventListener('click', function () {
-            window.location.href = 'login.html'; // Przekierowanie do strony logowania
-        });
+    <label for="Password">Password:</label>
+    <input type="tel" id="Password" name="Password" required><br>
 
-        signupButton.addEventListener('click', function () {
-            window.location.href = 'index.html'; // Przekierowanie do strony tworzenia użytkownika
-        });
-    });
-</script>
+    <label for="Email">Email:</label>
+    <input type="email" id="Email" name="Email" required><br>
+
+    <label for="Category">Category:</label>
+    <select id="Category" name="Category" required>
+        <option value="">Select...</option>
+        <option value="Family">Family</option>
+        <option value="Friends">Friends</option>
+        <option value="Work">Work</option>
+    </select><br>
+
+    <button type="submit">Submit</button>
+</form>
+
 </body>
 </html>

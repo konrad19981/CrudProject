@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lista kontaktów</title>
+    <link rel="stylesheet" href="/contactsview.css">
+</head>
+<body>
+<h1>Lista kontaktów</h1>
+<table>
+    <thead>
+    <tr>
+        <th>Email</th>
+        <th>Imię</th>
+        <th>Nazwisko</th>
+        <th>Kategoria</th>
+        <th>Hasło</th>
+        <th>Numer telefonu</th>
+        <th>Akcje</th>
+    </tr>
+    </thead>
+    <tbody>
+    <% contacts.forEach(function(contact) { %>
+        <tr>
+            <td><%= contact.Email %></td>
+            <td><%= contact.FirstName %></td>
+            <td><%= contact.LastName %></td>
+            <td><%= contact.Category %></td>
+            <td><%= contact.Password %></td>
+            <td><%= contact.PhoneNumber %></td>
+            <td>
+                <form action="/update/" method="post">
+                    <input type="hidden" name="id" value="<%= contact.id %>">
+                    <input type="text" name="newFirstName" value="<%= contact.FirstName %>">
+                    <input type="text" name="newLastName" value="<%= contact.LastName %>">
+                    <input type="text" name="newCategory" value="<%= contact.Category %>">
+                    <input type="text" name="newEmail" value="<%= contact.Email %>">
+                    <input type="text" name="newPassword" value="<%= contact.Password %>">
+                    <input type="text" name="newPhoneNumber" value="<%= contact.PhoneNumber %>">
+                    <button class="btn btn-success" type="submit">Edit</button>
+                </form>
+                <form action="/delete/<%= contact.id %>" method="post">
+                    <input type="hidden" name="_method" value="DELETE">
+                    <button class="btn btn-danger" type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>
+    <% }); %>
+    </tbody>
+</table>
+</body>
+</html>

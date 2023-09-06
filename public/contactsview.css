@@ -1,0 +1,41 @@
+/* Dodaj te style do pliku cart.css */
+
+/* Stylizacja tabeli */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table, th, td {
+    border: 1px solid #ddd;
+}
+
+th, td {
+    padding: 8px;
+    text-align: left;
+}
+
+/* Stylizacja przycisków */
+button.btn {
+    padding: 5px 10px;
+    background-color: #d9534f; /* Kolor tła przycisku */
+    color: #fff; /* Kolor tekstu przycisku */
+    border: none;
+    cursor: pointer;
+}
+
+button.btn:hover {
+    background-color: #c9302c; /* Kolor tła przycisku po najechaniu myszką */
+}
+/* Stylizacja przycisku Edit */
+button.edit-btn {
+    padding: 5px 10px;
+    background-color: #d9534f; /* Kolor tła przycisku */
+    color: #fff; /* Kolor tekstu przycisku */
+    border: none;
+    cursor: pointer;
+}
+
+button.edit-btn:hover {
+    background-color: #46b8da; /* Kolor tła przycisku Edit po najechaniu myszką */
+}

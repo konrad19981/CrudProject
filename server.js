@@ -1,18 +1,25 @@
-
 const path = require('path');
 const express = require('express');
+const methodOverride = require('method-override');
 const app = express();
 const admin = require('firebase-admin');
 const credentials = require('./key.json');
+const pug = require('pug');
 const { response} = require('express');
+
 //const credentials = require("./serviceAccountKey.json");
 admin.initializeApp({
     credential: admin.credential.cert(credentials)
 });
 const db = admin.firestore();
+const axios = require('axios');
+app.set('view engine', 'pug'); // Ustawienie silnika widoków na pug
+app.set('views', __dirname + '/views'); // Katalog z widokiem
+app.use(methodOverride('_method'));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(express.static('public'));
+
 // router.get
 //app.get('/create', function (req, res) {
    // res.sendFile('index.html', { root: 'public' });
@@ -31,7 +38,7 @@ app.post('/signup', async (req, res) => {
     res.json(userResponse);
 })
 app.get('/',function(req,res) {
-    res.sendFile('index.html', {root: 'public'})
+    res.sendFile('start.html', {root: 'public'})
 
     app.post('/create', async function (req, res) {
         try {
@@ -74,32 +81,24 @@ app.post('/create', async (req, res) => {
     res.status(500).send(error.message);
     }
 });
-// import {CreateEnd} from ".create";
 // READ OPERACJA
 app.get('/read', async (req, res) => {
     try {
         const usersRef = db.collection("Concacts");
         // dodalem  .add(userJson);
         const response = await usersRef.get();
-        let responseArr = [];
-        response.forEach(doc => {
-        responseArr.push(doc.data());
+        const responseArr = response.docs.map(doc => {
+            const data = doc.data();
+            return {id: doc.id, ...data};
         });
-        res.send(responseArr);
+
+        res.render('contacts', { contacts: responseArr });
+        //res.send(responseArr);
     } catch(error) {
         res.status(500).send(error.message);
     }
 });
-/* FUNKCJA TESTOWA
- app.get('form', (req, res) => {
 
-     res.sendFile()(__dirname + 'pusty/index.html');
- })
-
-app.post('/formPost', (req,res) =>{
-console.log(req.body);
-})
-*/
 // READ OPACAJA PO ID
 app.get('/read/:id', async (req, res) => {
     try {
@@ -111,15 +110,28 @@ app.get('/read/:id', async (req, res) => {
     }
 });
 // READ OPERACJA UPDATE
+
+
+/*
 app.post('/update', async (req, res) => {
     try {
-        const id = req.body.id;
-        const newFirstName = "Adam";
-        const newLastName = "Stodola";
-        const newCategory = "Friends";
-        const newEmail = "332@gmail.com";
-        const newPassword = "123123123";
-        const newPhoneNumber = "000000000";
+
+                   const id = req.body.id;
+                   const newFirstName = "Adam";
+                   const newLastName = "Stodola";
+                   const newCategory = "Friends";
+                   const newEmail = "332@gmail.com";
+                   const newPassword = "123123123";
+                   const newPhoneNumber = "000000000";
+
+
+               const id = req.body.id;
+               const newFirstName = req.body.newFirstName;
+               const newLastName = req.body.newLastName;
+               const newCategory = req.body.newCategory;
+               const newEmail = req.body.newEmail;
+               const newPassword = req.body.newPassword;
+               const newPhoneNumber = req.body.newPhoneNumber;
 
         const userRef = await db.collection("Concacts").doc(id)
             .update({
@@ -130,20 +142,54 @@ app.post('/update', async (req, res) => {
                 Password: newPassword,
                 PhoneNumber: newPhoneNumber
             });
+       // res.redirect('/');
         res.send(userRef);
     }   catch(error) {
         res.send(error);
     }
 });
+
+*/
 //READ OPERACJA DELETE
-app.delete('/delete/:id', async (req, res) => {
+
+app.post('/update', async (req, res) => {
     try {
-        const response = await db.collection("Concacts").doc(req.params.id).delete();
-        res.send(response);
-    }   catch(error) {
-        res.send(error);
+        const id = req.body.id; // Unikalne pole, które identyfikuje użytkownika
+        const newFirstName = req.body.newFirstName;
+        const newLastName = req.body.newLastName;
+        const newCategory = req.body.newCategory;
+        const newEmail = req.body.newEmail;
+        const newPassword = req.body.newPassword;
+        const newPhoneNumber = req.body.newPhoneNumber;
+
+
+        const userRef = await db.collection("Concacts").doc(id)
+            .update({
+                FirstName: newFirstName,
+                LastName: newLastName,
+                Category: newCategory,
+                Email: newEmail,
+                Password: newPassword,
+                PhoneNumber: newPhoneNumber
+            });
+                res.send(userRef);
+            }   catch(error) {
+                res.send(error);
+            }
+});
+
+app.post('/delete/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        console.log('ID do usunięcia:', id); // Dodaj ten log
+        await db.collection("Concacts").doc(id).delete();
+        res.sendStatus(204); // Odpowiedź HTTP 204 No Content po udanym usunięciu
+    } catch (error) {
+        console.error('Błąd podczas usuwania kontaktu:', error);
+        res.status(500).send(error.message);
     }
 });
+
 app.post('/formPost', (req, res) => {
     try {
         const userJson = {
@@ -154,23 +200,6 @@ app.post('/formPost', (req, res) => {
             Password: req.body.Password,
             Category: req.body.Category
         };
-
-        // Wysyłamy dane do endpointu /create na serwerze
-        /* fetch('http://localhost:8080/create', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(userJson)
-        })
-            .then(response => response.json())
-            .then(data => {
-                res.send(data); // Zwracamy odpowiedź z ID dodanego dokumentu
-            })
-            .catch(error => {
-                console.error(error);
-                res.send(error);
-            }); */
         db.collection("Concacts").add(userJson)
             .then(docRef => {
                 res.send({id: docRef.id});
@@ -180,7 +209,6 @@ app.post('/formPost', (req, res) => {
         res.send(error);
     }
     });
-
 
 
 const PORT = process.env.PORT || 8080;
