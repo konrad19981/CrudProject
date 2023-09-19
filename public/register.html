@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="toregister.css">
+    <title>Rejestracja Konta</title>
+</head>
+<body>
+<div class="container">
+    <h1>Rejestracja Konta</h1>
+    <form id="registration-form" action="/signup" method="POST">
+        <div class="form-group">
+            <label for="username">Login:</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Hasło:</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <div class="form-group">
+            <label for="confirm-password">Powtórz Hasło:</label>
+            <input type="password" id="confirm-password" name="confirm-password" required>
+        </div>
+        <div class="form-group">
+            <label for="email">E-mail:</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+        <button type="submit">Zarejestruj się</button>
+    </form>
+</div>
+
+</body>
+</html>

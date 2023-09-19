@@ -27,7 +27,7 @@ html
                         td(class=`phone-number-${contact.id}`)= contact.PhoneNumber
                         td
                             form(action='/update/', method='post')
-                                input(type='hidden', name='id', value=contact.id)
+                                input(type='text', name='id', value=contact.id)
                                 input(type='text', name='newFirstName', value=contact.FirstName)
                                 input(type='text', name='newLastName', value=contact.LastName)
                                 input(type='text', name='newEmail', value=contact.Email)
@@ -41,3 +41,7 @@ html
                             form(action=`/delete/${contact.id}`, method='post')
                                 input(type='hidden', name='_method', value='DELETE')
                                 button.btn.btn-danger(type='submit') Delete
+
+                    select
+                        option(value="edit") Edit
+                        option(value="delete") Delete

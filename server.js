@@ -1,3 +1,6 @@
+
+const { signInWithEmailAndPassword } = require('firebase/auth');
+
 const path = require('path');
 const express = require('express');
 const methodOverride = require('method-override');
@@ -6,13 +9,15 @@ const admin = require('firebase-admin');
 const credentials = require('./key.json');
 const pug = require('pug');
 const { response} = require('express');
-
+const auth = require('firebase/auth')
 //const credentials = require("./serviceAccountKey.json");
 admin.initializeApp({
     credential: admin.credential.cert(credentials)
 });
 const db = admin.firestore();
 const axios = require('axios');
+
+const { initializeApp: initializeAdminApp } = require("firebase-admin/app");
 app.set('view engine', 'pug'); // Ustawienie silnika widoków na pug
 app.set('views', __dirname + '/views'); // Katalog z widokiem
 app.use(methodOverride('_method'));
@@ -20,23 +25,118 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(express.static('public'));
 
+
 // router.get
 //app.get('/create', function (req, res) {
    // res.sendFile('index.html', { root: 'public' });
-app.post('/signup', async (req, res) => {
-    console.log(req.body);
-    const user = {
-        email: req.body.email,
-        password: req.body.password
+app.post('/login', async (req, res) => {
+    try {
+        // ... pozostała część kodu ...
+
+        // Sprawdzenie poprawności logowania i wysłanie odpowiedzi
+    } catch (error) {
+        console.error('Błąd logowania:', error);
+        res.status(500).json({ error: error.message });
     }
-    const userResponse = await admin.auth().createUser({
-        email: user.email,
-        password: user.password,
-        emailVerified: false,
-        disabled: false
-    });
-    res.json(userResponse);
+});
+
+/*
+app.post('/login', async (req, res) => {
+    try {
+
+        if (!req.body.idToken || typeof req.body.idToken !== 'string') {
+            return res.status(400).json({ error: 'Brak prawidłowego idToken w zapytaniu' });
+        }
+
+        const idToken = req.body.idToken;
+        const decodedToken = await admin.auth().verifyIdToken(idToken, false);
+        const userUid = decodedToken.uid;
+        res.json({ message: 'Logowanie udane', uid: userUid });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/login', async (req, res) => {
+    const email = req.body.Email;
+    const password = req.body.Password;
+
+    signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            const user = userCredential.user;
+            console.log(user);
+            res.send(`Logged in as: ${user.email}`);
+
+        })
+        .catch((error) => {
+            const errorMessage = error.message;
+            console.error(errorMessage);
+            res.status(400).send(`Error: ${errorMessage}`);
+        });
+});
+*/
+/*
+app.post('/login', (req, res) => {
+    const email = req.body.login_email;
+    const password = req.body.login_password;
+
+    signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            const user = userCredential.user;
+            console.log(user);
+            res.send(`Logged in as: ${user.email}`);
+
+        })
+        .catch((error) => {
+            const errorMessage = error.message;
+            console.error(errorMessage);
+            res.status(400).send(`Error: ${errorMessage}`);
+        });
+});
+
+*/
+
+/*
+app.post('/login', async (req, res) => {
+
+    var auth1 = auth.getAuth();
+
+    signInWithEmailAndPassword(auth1, email, password)
+        .then((userCredential) => {
+            // Signed in
+            const user = userCredential.user;
+            // ...
+            res.json({ message: 'Rejestracja udana', uid: userUid });
+        })
+        .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+        });
 })
+*/
+
+
+app.post('/signup', async (req, res) => {
+    try {
+        const user = {
+            email: req.body.email,
+            password: req.body.password
+        };
+
+        const userRecord = await admin.auth().createUser({
+            email: user.email,
+            password: user.password,
+            emailVerified: false,
+            disabled: false
+        });
+        const userUid = userRecord.uid;
+        res.json({ message: 'Rejestracja udana', uid: userUid });
+    } catch (error) {
+        // Obsługa błędów
+        res.status(500).json({ error: error.message });
+    }
+});
+
 app.get('/',function(req,res) {
     res.sendFile('start.html', {root: 'public'})
 
@@ -210,6 +310,21 @@ app.post('/formPost', (req, res) => {
     }
     });
 
+// Dodaj nowy endpoint, np. '/listUsers', który będzie wyświetlał UID użytkowników
+app.get('/listUsers', async (req, res) => {
+    try {
+        // Pobierz wszystkich użytkowników z Firebase Authentication
+        const listUsersResult = await admin.auth().listUsers();
+        const users = listUsersResult.users;
+
+        // Pobierz UID każdego użytkownika i dodaj do tablicy
+        const uids = users.map((user) => user.uid);
+
+        res.json({ uids });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
