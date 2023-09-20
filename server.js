@@ -1,5 +1,5 @@
 
-const { signInWithEmailAndPassword } = require('firebase/auth');
+const { getAuth, signInWithEmailAndPassword, signOut } = require('firebase/auth');
 
 const path = require('path');
 const express = require('express');
@@ -18,6 +18,7 @@ const db = admin.firestore();
 const axios = require('axios');
 
 const { initializeApp: initializeAdminApp } = require("firebase-admin/app");
+const {initializeApp} = require("firebase/app");
 app.set('view engine', 'pug'); // Ustawienie silnika widoków na pug
 app.set('views', __dirname + '/views'); // Katalog z widokiem
 app.use(methodOverride('_method'));
@@ -25,10 +26,59 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(express.static('public'));
 
+const firebaseConfig = {
+    apiKey: "AIzaSyD7Ayo36UyEFLGq939UA1YPuqM89VPdZdI",
+    authDomain: "learn-380a2.firebaseapp.com",
+    projectId: "learn-380a2",
+    storageBucket: "learn-380a2.appspot.com",
+    messagingSenderId: "497072739065",
+    appId: "1:497072739065:web:a088778dc51e3e6dc9c828",
+    measurementId: "G-LWZNQYYBQ2"
+};
+
+
+app.post('/login', (req, res) => {
+    const email = req.body.email;
+    const password = req.body.password;
+
+    admin
+        .auth()
+        .signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+            const user = userCredential.user;
+            console.log(`Zalogowano użytkownika: ${user.email}`);
+            res.send(`Zalogowano użytkownika: ${user.email}`);
+        })
+        .catch((error) => {
+            const errorMessage = error.message;
+            console.error(`Błąd logowania: ${errorMessage}`);
+            res.status(401).send(`Błąd logowania: ${errorMessage}`);
+        });
+});
 
 // router.get
 //app.get('/create', function (req, res) {
    // res.sendFile('index.html', { root: 'public' });
+/*
+app.post('/login', async (req, res) => {
+    try {
+        const email = req.body.email;
+        const password = req.body.password;
+
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        console.log(`Logged in as: ${user.email}`);
+        res.render('logged-in', { email: user.email });
+    } catch (error) {
+        const errorMessage = error.message;
+        console.error(errorMessage);
+        res.status(400).render('error', { error: errorMessage });
+    }
+});
+
+ */
+/*
 app.post('/login', async (req, res) => {
     try {
         // ... pozostała część kodu ...
@@ -39,7 +89,7 @@ app.post('/login', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
-
+*/
 /*
 app.post('/login', async (req, res) => {
     try {
