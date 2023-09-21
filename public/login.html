@@ -57,6 +57,7 @@
             .then((userCredential) => {
                 const user = userCredential.user;
                 console.log(user);
+                window.location.assign("http://localhost:8080/read")
                 alert(user.email + " Login successfully!!!");
                 document.getElementById("logout-button").style.display = "block";
             })

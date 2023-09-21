@@ -1,30 +1,79 @@
-
 const { getAuth, signInWithEmailAndPassword, signOut } = require('firebase/auth');
+const session = require('express-session');
 
 const path = require('path');
 const express = require('express');
 const methodOverride = require('method-override');
 const app = express();
 const admin = require('firebase-admin');
-const credentials = require('./key.json');
+//const serviceAccount = require("path/to/key.json");
+const serviceAccount = require('./key.json');
 const pug = require('pug');
 const { response} = require('express');
 const auth = require('firebase/auth')
 //const credentials = require("./serviceAccountKey.json");
+/*
 admin.initializeApp({
     credential: admin.credential.cert(credentials)
 });
+*/
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: "https://learn-380a2-default-rtdb.firebaseio.com"
+});
+
 const db = admin.firestore();
 const axios = require('axios');
-
-const { initializeApp: initializeAdminApp } = require("firebase-admin/app");
-const {initializeApp} = require("firebase/app");
+//const { initializeApp: initializeAdminApp } = require('firebase-admin/app');
+//const {initializeApp} = require('firebase/app');
+//const {getFirestore} = require("firebase-admin/firestore");
+const pugStatic = require('express-pug-static');
+app.use(pugStatic({
+    baseDir: path.join(__dirname, '/views'),
+    baseUrl: '/views',
+    maxAge: 86400,
+    pug: { pretty: true}
+}));
 app.set('view engine', 'pug'); // Ustawienie silnika widoków na pug
 app.set('views', __dirname + '/views'); // Katalog z widokiem
 app.use(methodOverride('_method'));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(express.static('public'));
+app.use(session({
+    secret: 'sd@asdx!#54@xvks0AsxD',
+    resave: false,
+    saveUninitialized: true
+}));
+
+const { initializeApp } = require("@firebase/app");
+//const { getAuth, createUserWithEmailAndPassword } = require("@firebase/auth");
+
+// firebase-admin package
+const { initializeApp: initializeAdminApp } = require('firebase-admin/app');
+const { getAuth: getAdminAuth, createCustomToken } = require('firebase-admin/auth');
+const { getFirestore } = require('firebase-admin/firestore');
+/*
+// Initialize firebase-admin
+const adminApp = initializeAdminApp();
+const adminAuth = getAdminAuth();
+const firestore = getFirestore();
+
+const firebaseApp = initializeApp(firebaseConfig);
+const firebaseAuth = getAuth(firebaseApp);
+
+// Example function
+exports.createUserAndSignInWithToken = onCall({cors: true}, async (request) => {
+
+    var result = await createUserWithEmailAndPassword(firebaseAuth, 'test@abc.com', 'password').then(async function(userCredential) {
+
+        var customToken = await adminAuth.createCustomToken(userCredential.user.uid);
+        return customToken;
+
+    });
+    return result;
+
+});
 
 const firebaseConfig = {
     apiKey: "AIzaSyD7Ayo36UyEFLGq939UA1YPuqM89VPdZdI",
@@ -37,6 +86,53 @@ const firebaseConfig = {
 };
 
 
+
+app.get('/login', (req, res) => {
+    res.sendFile(__dirname + '/public/login.html');
+});
+*/
+// Obsługa logowania
+app.post('/login', async (req, res) => {
+    try {
+        const email = req.body.email;
+        const password = req.body.password;
+
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        console.log(`Zalogowano użytkownika: ${user.email}`);
+        res.render('logged-in', { email: user.email });
+    } catch (error) {
+        const errorMessage = error.message;
+        console.error(`Błąd logowania: ${errorMessage}`);
+        res.status(400).send(`Błąd logowania: ${errorMessage}`);
+    }
+});
+// Obsługa wylogowywania
+app.post('/logout', (req, res) => {
+    if (req.session) {
+        req.session.destroy(err => {
+            if (err) {
+                res.status(400).send('Nie można się wylogować');
+            } else {
+                // Wyloguj użytkownika z Firebase
+                signOut(auth)
+                    .then(() => {
+                        console.log("Wylogowano użytkownika z Firebase.");
+                        res.redirect('/login');
+                    })
+                    .catch((error) => {
+                        console.error("Błąd wylogowywania z Firebase:", error);
+                        res.redirect('/login');
+                    });
+            }
+        });
+    } else {
+        res.redirect('/login');
+    }
+});
+
+/*
 app.post('/login', (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
@@ -55,7 +151,7 @@ app.post('/login', (req, res) => {
             res.status(401).send(`Błąd logowania: ${errorMessage}`);
         });
 });
-
+*/
 // router.get
 //app.get('/create', function (req, res) {
    // res.sendFile('index.html', { root: 'public' });
@@ -179,13 +275,16 @@ app.post('/signup', async (req, res) => {
             emailVerified: false,
             disabled: false
         });
+
         const userUid = userRecord.uid;
-        res.json({ message: 'Rejestracja udana', uid: userUid });
+
+        // redirect przekierowanie
+        res.redirect('/login.html');
     } catch (error) {
-        // Obsługa błędów
         res.status(500).json({ error: error.message });
     }
 });
+
 
 app.get('/',function(req,res) {
     res.sendFile('start.html', {root: 'public'})
@@ -201,8 +300,9 @@ app.get('/',function(req,res) {
                 Category: req.body.Category
             };
             const response = await db.collection("Concacts").add(userJson);
-            res.send("Create Successful");
+           // res.send("Create Successful");
             // res.send(response.id);
+            res.redirect('/login');
         } catch (error) {
             res.status(500).send(error.message);
         }
@@ -223,8 +323,9 @@ app.post('/create', async (req, res) => {
             Category: req.body.Category
         };
         const response = await db.collection("Concacts").add(userJson);
-        res.send("Create Successful");
+       // res.send("Create Successful");
         //res.send(response.id);
+        res.redirect('/read');
         // dodalem .id
     } catch(error) {
    // res.send(error);
@@ -300,7 +401,7 @@ app.post('/update', async (req, res) => {
 });
 
 */
-//READ OPERACJA DELETE
+
 
 app.post('/update', async (req, res) => {
     try {
@@ -322,7 +423,8 @@ app.post('/update', async (req, res) => {
                 Password: newPassword,
                 PhoneNumber: newPhoneNumber
             });
-                res.send(userRef);
+              //  res.send(userRef);
+        res.redirect('/read');
             }   catch(error) {
                 res.send(error);
             }
@@ -331,9 +433,10 @@ app.post('/update', async (req, res) => {
 app.post('/delete/:id', async (req, res) => {
     try {
         const id = req.params.id;
-        console.log('ID do usunięcia:', id); // Dodaj ten log
+        console.log('ID do usunięcia:', id);
         await db.collection("Concacts").doc(id).delete();
-        res.sendStatus(204); // Odpowiedź HTTP 204 No Content po udanym usunięciu
+        res.redirect('/read');
+       // res.sendStatus(204);
     } catch (error) {
         console.error('Błąd podczas usuwania kontaktu:', error);
         res.status(500).send(error.message);
@@ -360,7 +463,7 @@ app.post('/formPost', (req, res) => {
     }
     });
 
-// Dodaj nowy endpoint, np. '/listUsers', który będzie wyświetlał UID użytkowników
+// '/listUsers', który będzie wyświetlał UID użytkowników
 app.get('/listUsers', async (req, res) => {
     try {
         // Pobierz wszystkich użytkowników z Firebase Authentication
@@ -375,7 +478,19 @@ app.get('/listUsers', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
-
+app.post('/logout1', (req, res) => {
+    if (req.session) {
+        req.session.destroy(err => {
+            if (err) {
+                res.status(400).send('Unable to log out')
+            } else {
+                res.send('Logout successful')
+            }
+        });
+    } else {
+        res.end()
+    }
+})
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
     console.log(`Server is running on PORT ${PORT}.`);

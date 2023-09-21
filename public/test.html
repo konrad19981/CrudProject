@@ -9,7 +9,7 @@
 <body>
 <div class="container">
     <h1>Login</h1>
-    <form id="login-form" action="#" method="POST">
+    <form id="login-form" action="/login" method="POST"> <!-- Zmiana action na '/login' -->
         <div class="form-group">
             <label for="email">Email:</label>
             <input type="email" id="email" name="email" required>
@@ -18,66 +18,16 @@
             <label for="password">Password:</label>
             <input type="password" id="password" name="password" required>
         </div>
-        <button type="button" id="login-button">Login</button>
+        <button type="submit">Login</button> <!-- Zmiana type na 'submit' -->
     </form>
-    <button id="logout-button" style="display: none;">Sign Out</button>
+    <form id="logout-form" action="/logout" method="POST"> <!-- Formularz dla wylogowywania -->
+        <button type="submit" style="display: none;">Sign Out</button>
+    </form>
     <p id="error-message"></p>
 </div>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-auth.js";
-
-    const firebaseConfig = {
-        apiKey: "AIzaSyD7Ayo36UyEFLGq939UA1YPuqM89VPdZdI",
-        authDomain: "learn-380a2.firebaseapp.com",
-        projectId: "learn-380a2",
-        storageBucket: "learn-380a2.appspot.com",
-        messagingSenderId: "497072739065",
-        appId: "1:497072739065:web:a088778dc51e3e6dc9c828",
-        measurementId: "G-LWZNQYYBQ2"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth();
-    console.log(app);
-
-    const loginForm = document.getElementById("login-form");
-    const emailInput = document.getElementById("email");
-    const passwordInput = document.getElementById("password");
-    const loginButton = document.getElementById("login-button");
-    const logoutButton = document.getElementById("logout-button");
-    const errorMessage = document.getElementById("error-message");
-
-    loginButton.addEventListener("click", () => {
-        const email = emailInput.value;
-        const password = passwordInput.value;
-
-        signInWithEmailAndPassword(auth, email, password)
-            .then((userCredential) => {
-                const user = userCredential.user;
-                console.log(user);
-                alert(user.email + " Login successfully!!!");
-                document.getElementById("logout-button").style.display = "block";
-            })
-            .catch((error) => {
-                const errorMessageText = error.message;
-                console.log(errorMessageText);
-                errorMessage.textContent = errorMessageText;
-            });
-    });
-
-    logoutButton.addEventListener("click", () => {
-        signOut(auth)
-            .then(() => {
-                console.log("Sign-out successful.");
-                alert("Sign-out successful.");
-                document.getElementById("logout-button").style.display = "none";
-            })
-            .catch((error) => {
-                console.log("An error happened.");
-            });
-    });
+<script>
+    // Twój kod JavaScript tutaj
 </script>
 </body>
 </html>
