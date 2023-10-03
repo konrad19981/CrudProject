@@ -6,27 +6,16 @@ const express = require('express');
 const methodOverride = require('method-override');
 const app = express();
 const admin = require('firebase-admin');
-//const serviceAccount = require("path/to/key.json");
 const serviceAccount = require('./key.json');
 const pug = require('pug');
 const { response} = require('express');
 const auth = require('firebase/auth')
-//const credentials = require("./serviceAccountKey.json");
-/*
-admin.initializeApp({
-    credential: admin.credential.cert(credentials)
-});
-*/
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
     databaseURL: "https://learn-380a2-default-rtdb.firebaseio.com"
 });
-
 const db = admin.firestore();
 const axios = require('axios');
-//const { initializeApp: initializeAdminApp } = require('firebase-admin/app');
-//const {initializeApp} = require('firebase/app');
-//const {getFirestore} = require("firebase-admin/firestore");
 const pugStatic = require('express-pug-static');
 app.use(pugStatic({
     baseDir: path.join(__dirname, '/views'),
@@ -45,53 +34,11 @@ app.use(session({
     resave: false,
     saveUninitialized: true
 }));
-
 const { initializeApp } = require("@firebase/app");
-//const { getAuth, createUserWithEmailAndPassword } = require("@firebase/auth");
-
-// firebase-admin package
 const { initializeApp: initializeAdminApp } = require('firebase-admin/app');
 const { getAuth: getAdminAuth, createCustomToken } = require('firebase-admin/auth');
 const { getFirestore } = require('firebase-admin/firestore');
-/*
-// Initialize firebase-admin
-const adminApp = initializeAdminApp();
-const adminAuth = getAdminAuth();
-const firestore = getFirestore();
 
-const firebaseApp = initializeApp(firebaseConfig);
-const firebaseAuth = getAuth(firebaseApp);
-
-// Example function
-exports.createUserAndSignInWithToken = onCall({cors: true}, async (request) => {
-
-    var result = await createUserWithEmailAndPassword(firebaseAuth, 'test@abc.com', 'password').then(async function(userCredential) {
-
-        var customToken = await adminAuth.createCustomToken(userCredential.user.uid);
-        return customToken;
-
-    });
-    return result;
-
-});
-
-const firebaseConfig = {
-    apiKey: "AIzaSyD7Ayo36UyEFLGq939UA1YPuqM89VPdZdI",
-    authDomain: "learn-380a2.firebaseapp.com",
-    projectId: "learn-380a2",
-    storageBucket: "learn-380a2.appspot.com",
-    messagingSenderId: "497072739065",
-    appId: "1:497072739065:web:a088778dc51e3e6dc9c828",
-    measurementId: "G-LWZNQYYBQ2"
-};
-
-
-
-app.get('/login', (req, res) => {
-    res.sendFile(__dirname + '/public/login.html');
-});
-*/
-// Obsługa logowania
 app.post('/login', async (req, res) => {
     try {
         const email = req.body.email;
@@ -108,7 +55,6 @@ app.post('/login', async (req, res) => {
         res.status(400).send(`Błąd logowania: ${errorMessage}`);
     }
 });
-// Obsługa wylogowywania
 app.post('/logout', (req, res) => {
     if (req.session) {
         req.session.destroy(err => {
@@ -131,136 +77,6 @@ app.post('/logout', (req, res) => {
         res.redirect('/login');
     }
 });
-
-/*
-app.post('/login', (req, res) => {
-    const email = req.body.email;
-    const password = req.body.password;
-
-    admin
-        .auth()
-        .signInWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-            const user = userCredential.user;
-            console.log(`Zalogowano użytkownika: ${user.email}`);
-            res.send(`Zalogowano użytkownika: ${user.email}`);
-        })
-        .catch((error) => {
-            const errorMessage = error.message;
-            console.error(`Błąd logowania: ${errorMessage}`);
-            res.status(401).send(`Błąd logowania: ${errorMessage}`);
-        });
-});
-*/
-// router.get
-//app.get('/create', function (req, res) {
-   // res.sendFile('index.html', { root: 'public' });
-/*
-app.post('/login', async (req, res) => {
-    try {
-        const email = req.body.email;
-        const password = req.body.password;
-
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-
-        console.log(`Logged in as: ${user.email}`);
-        res.render('logged-in', { email: user.email });
-    } catch (error) {
-        const errorMessage = error.message;
-        console.error(errorMessage);
-        res.status(400).render('error', { error: errorMessage });
-    }
-});
-
- */
-/*
-app.post('/login', async (req, res) => {
-    try {
-        // ... pozostała część kodu ...
-
-        // Sprawdzenie poprawności logowania i wysłanie odpowiedzi
-    } catch (error) {
-        console.error('Błąd logowania:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-*/
-/*
-app.post('/login', async (req, res) => {
-    try {
-
-        if (!req.body.idToken || typeof req.body.idToken !== 'string') {
-            return res.status(400).json({ error: 'Brak prawidłowego idToken w zapytaniu' });
-        }
-
-        const idToken = req.body.idToken;
-        const decodedToken = await admin.auth().verifyIdToken(idToken, false);
-        const userUid = decodedToken.uid;
-        res.json({ message: 'Logowanie udane', uid: userUid });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.post('/login', async (req, res) => {
-    const email = req.body.Email;
-    const password = req.body.Password;
-
-    signInWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-            const user = userCredential.user;
-            console.log(user);
-            res.send(`Logged in as: ${user.email}`);
-
-        })
-        .catch((error) => {
-            const errorMessage = error.message;
-            console.error(errorMessage);
-            res.status(400).send(`Error: ${errorMessage}`);
-        });
-});
-*/
-/*
-app.post('/login', (req, res) => {
-    const email = req.body.login_email;
-    const password = req.body.login_password;
-
-    signInWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-            const user = userCredential.user;
-            console.log(user);
-            res.send(`Logged in as: ${user.email}`);
-
-        })
-        .catch((error) => {
-            const errorMessage = error.message;
-            console.error(errorMessage);
-            res.status(400).send(`Error: ${errorMessage}`);
-        });
-});
-
-*/
-
-/*
-app.post('/login', async (req, res) => {
-
-    var auth1 = auth.getAuth();
-
-    signInWithEmailAndPassword(auth1, email, password)
-        .then((userCredential) => {
-            // Signed in
-            const user = userCredential.user;
-            // ...
-            res.json({ message: 'Rejestracja udana', uid: userUid });
-        })
-        .catch((error) => {
-            const errorCode = error.code;
-            const errorMessage = error.message;
-        });
-})
-*/
-
 
 app.post('/signup', async (req, res) => {
     try {
@@ -308,8 +124,6 @@ app.get('/',function(req,res) {
         }
     });
     });
-    //__dirname : It will resolve to your project folder.
-// CREATE OPERACJA
 app.post('/create', async (req, res) => {
     try {
         console.log(req.body);
@@ -323,16 +137,11 @@ app.post('/create', async (req, res) => {
             Category: req.body.Category
         };
         const response = await db.collection("Concacts").add(userJson);
-       // res.send("Create Successful");
-        //res.send(response.id);
         res.redirect('/read');
-        // dodalem .id
     } catch(error) {
-   // res.send(error);
     res.status(500).send(error.message);
     }
 });
-// READ OPERACJA
 app.get('/read', async (req, res) => {
     try {
         const usersRef = db.collection("Concacts");
@@ -349,8 +158,6 @@ app.get('/read', async (req, res) => {
         res.status(500).send(error.message);
     }
 });
-
-// READ OPACAJA PO ID
 app.get('/read/:id', async (req, res) => {
     try {
         const userRef = db.collection("Concacts").doc(req.params.id);
@@ -360,48 +167,6 @@ app.get('/read/:id', async (req, res) => {
         res.send(error);
     }
 });
-// READ OPERACJA UPDATE
-
-
-/*
-app.post('/update', async (req, res) => {
-    try {
-
-                   const id = req.body.id;
-                   const newFirstName = "Adam";
-                   const newLastName = "Stodola";
-                   const newCategory = "Friends";
-                   const newEmail = "332@gmail.com";
-                   const newPassword = "123123123";
-                   const newPhoneNumber = "000000000";
-
-
-               const id = req.body.id;
-               const newFirstName = req.body.newFirstName;
-               const newLastName = req.body.newLastName;
-               const newCategory = req.body.newCategory;
-               const newEmail = req.body.newEmail;
-               const newPassword = req.body.newPassword;
-               const newPhoneNumber = req.body.newPhoneNumber;
-
-        const userRef = await db.collection("Concacts").doc(id)
-            .update({
-                FirstName: newFirstName,
-                LastName: newLastName,
-                Category: newCategory,
-                Email: newEmail,
-                Password: newPassword,
-                PhoneNumber: newPhoneNumber
-            });
-       // res.redirect('/');
-        res.send(userRef);
-    }   catch(error) {
-        res.send(error);
-    }
-});
-
-*/
-
 
 app.post('/update', async (req, res) => {
     try {
@@ -436,13 +201,11 @@ app.post('/delete/:id', async (req, res) => {
         console.log('ID do usunięcia:', id);
         await db.collection("Concacts").doc(id).delete();
         res.redirect('/read');
-       // res.sendStatus(204);
     } catch (error) {
         console.error('Błąd podczas usuwania kontaktu:', error);
         res.status(500).send(error.message);
     }
 });
-
 app.post('/formPost', (req, res) => {
     try {
         const userJson = {
@@ -462,17 +225,11 @@ app.post('/formPost', (req, res) => {
         res.send(error);
     }
     });
-
-// '/listUsers', który będzie wyświetlał UID użytkowników
 app.get('/listUsers', async (req, res) => {
     try {
-        // Pobierz wszystkich użytkowników z Firebase Authentication
         const listUsersResult = await admin.auth().listUsers();
         const users = listUsersResult.users;
-
-        // Pobierz UID każdego użytkownika i dodaj do tablicy
         const uids = users.map((user) => user.uid);
-
         res.json({ uids });
     } catch (error) {
         res.status(500).json({ error: error.message });
